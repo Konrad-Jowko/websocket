@@ -6,6 +6,10 @@ const userNameInput = document.getElementById('username');
 const messageContentInput = document.getElementById('message-content');
 let userName;
 
+const socket = io();
+
+socket.on('message', ({ author, content }) => addMessage(author, content))
+
 const login = (event) => {
   event.preventDefault();
 
@@ -13,6 +17,9 @@ const login = (event) => {
     userName = userNameInput.value;
     loginForm.classList.remove('show')
     messagesSection.classList.add('show')
+
+    socket.emit('login', userName)
+
   } else {
     alert('The login form is empty!')
   }
@@ -20,9 +27,11 @@ const login = (event) => {
 
 const sendMessage = (event) => {
   event.preventDefault();
+  let messageContent = messageContentInput.value;
 
-  if (messageContentInput.value) {
-    addMessage(userName, messageContentInput.value);
+  if (messageContent) {
+    addMessage(userName, messageContent);
+    socket.emit('message', { author: userName, content: messageContent })
     messageContentInput.value = '';
   } else {
     alert('The message is empty!')
